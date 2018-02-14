@@ -1,0 +1,67 @@
+/* 
+  This file is parsed by NewtonSoft. Normally, you cannot use comments
+  in a json file, but fortunately for us NewtonSoft doesn't care by
+  default so we can use it to annotate this file.
+
+  Some interesting points:
+
+  - You can use comments in your config files :-)
+  - Generate example: Nimator.Settings.NimatorSettings.GetExample()
+  - Use NewtonSoft-style "$type" hints to indicate what class you meant
+  - You could equally well persist this in e.g. a file
+*/
+{
+  "Notifiers": [
+    {
+      "$type": "Nimator.Settings.ConsoleSettings, Nimator",
+      "Threshold": "Okay"
+    }
+
+    // [SLACK] Enter your API url and uncomment:
+    //,
+    //{
+    //  "$type": "Nimator.Settings.SlackSettings, Nimator",
+    //  "Threshold":  "Okay",
+    //  "Url": "https://hooks.slack.com/services/YOUR/INTEGATION/url-goes-here",
+    //  "DebounceTimeInSecs": 60
+    //}
+
+    // [OPSGENIE] Enter your API Key and Heartbeat name and uncomment:
+    //,
+    //{
+    //  "$type": "Nimator.Settings.OpsGenieSettings, Nimator",
+    //  "Threshold": "Error",
+    //  "ApiKey": "your-key-here",
+    //  "TeamName": "ops_team",
+    //  "HeartbeatName":  "nimator"
+    //}
+  ],
+
+  "Layers": [
+    {
+      "Name": "Check health of the Couchbase Cluster",
+      "Checks": [
+        {
+          "$type": "CouchBaseHealthCheck.NumberOfDocsCheckSettings, CouchBaseHealthCheck",
+          "MaxNumberOfDocs": 100000,
+          "Server": {
+            "Address": "http://127.0.0.1:8091/",
+            "Username": "Administrator",
+            "Password": "omniaretail"
+          },
+          "Bucket": "travel-sample"
+        },
+        {
+          "$type": "CouchBaseHealthCheck.MemoryCheckSettings, CouchBaseHealthCheck",
+          "MinPercAvailableMemory": 15,
+           "Server": {
+            "Address": "http://127.0.0.1:8091/",
+            "Username": "Administrator",
+            "Password": "omniaretail"
+          }
+        }
+
+          ]
+        }
+      ]
+}
