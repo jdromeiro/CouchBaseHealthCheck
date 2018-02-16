@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchBaseHealthCheck", "CouchBaseHealthCheck\CouchBaseHealthCheck.csproj", "{0F0B9BB2-76D8-487A-B6AC-5762791F6346}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchBaseHealthCheck.Tests", "CouchBaseHealthCheck.Tests\CouchBaseHealthCheck.Tests.csproj", "{3A1ADD03-FDD1-49EC-9590-EB00C040C1DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0F0B9BB2-76D8-487A-B6AC-5762791F6346}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F0B9BB2-76D8-487A-B6AC-5762791F6346}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F0B9BB2-76D8-487A-B6AC-5762791F6346}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A1ADD03-FDD1-49EC-9590-EB00C040C1DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A1ADD03-FDD1-49EC-9590-EB00C040C1DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A1ADD03-FDD1-49EC-9590-EB00C040C1DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A1ADD03-FDD1-49EC-9590-EB00C040C1DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

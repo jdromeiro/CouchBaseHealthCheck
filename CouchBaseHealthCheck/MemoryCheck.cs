@@ -1,61 +1,66 @@
 ﻿using Nimator;
 using Refit;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CouchBaseHealthCheck
 {
-    class MemoryCheck : ICheck
+    public class MemoryCheck : ICheck
     {
-        private readonly CouchBaseServerInfo serverInfo;
-        private readonly decimal minPercAvailableMemory;
-
+        public decimal minPercAvailableMemory { get; set; }
+        private HttpClientForRefit client;
         public string ShortName { get; }
 
         public MemoryCheck(CouchBaseServerInfo serverInfo,  decimal minPercAvailableMemory)
         {
             if (serverInfo == null)
                 throw new ArgumentNullException(nameof(serverInfo));
-            if (minPercAvailableMemory < 0)
-                throw new ArgumentException("Minimum percentage of available memory cannot be negative");
-            if (string.IsNullOrEmpty(serverInfo.Address))
-                throw new ArgumentException("Server address cannot be null nor empty");
+            if (minPercAvailableMemory < 0 || minPercAvailableMemory >= 100)
+                throw new ArgumentException("Minimum percentage of available memory should have a value between 0 and 100");
 
-            this.serverInfo = serverInfo;
             this.minPercAvailableMemory = minPercAvailableMemory;
+
+            client = new HttpClientForRefit(serverInfo);
 
             ShortName = $"Memory available in the cluster with address '{serverInfo.Address}'";
         }
-
+        
         public Task<ICheckResult> RunAsync()
         {
-            //authentication
-            var authByteArray = Encoding.ASCII.GetBytes($"{serverInfo.Username}:{serverInfo.Password}");
-            var authString = Convert.ToBase64String(authByteArray);
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authString);
-            httpClient.BaseAddress = new Uri(serverInfo.Address);
+            HttpClient httpClient = client.WithBasicAuthorization();
 
-            //rest Api
-            var couchBaseApi = RestService.For<Stats.ICouchBaseAPI>(httpClient);
-            var nodeStats = couchBaseApi.GetNodeStats().Result;
+            CouchBaseStats.CouchBaseStats stats = ComputeCouchBaseStats(httpClient);
 
-            //compute values
-            var memFree = nodeStats.nodes[0].systemStats.mem_free;
-            var memTotal = nodeStats.nodes[0].systemStats.mem_total;
-            var percMemAvailable = (decimal)memFree / (decimal)memTotal * (decimal)100.0;
+            var memAvailable = ComputeMemoryAvailable(stats);
 
-            //calculate notification level
-            var level = (percMemAvailable >= minPercAvailableMemory)
-                ? NotificationLevel.Okay
-                : NotificationLevel.Error;
+            var level = CheckMemoryAvailable(memAvailable);
 
             return Task.FromResult<ICheckResult>(new CheckResult(ShortName, level));
+        }
+
+        public CouchBaseStats.CouchBaseStats ComputeCouchBaseStats(HttpClient httpClient)
+        {
+            if (httpClient == null)
+                throw new ArgumentNullException(nameof(httpClient));
+            var couchBaseApi = RestService.For<CouchBaseStats.ICouchBaseAPI>(httpClient);
+            return couchBaseApi.GetNodeStats().Result;
+        }
+        
+        public decimal ComputeMemoryAvailable(CouchBaseStats.CouchBaseStats stats)
+        {
+            if (stats == null)
+                throw new ArgumentNullException(nameof(stats));
+            var memFree = stats.nodes[0].systemStats.mem_free;
+            var memTotal = stats.nodes[0].systemStats.mem_total;
+            return (decimal)memFree / (decimal)memTotal * (decimal)100.0;
+        }
+
+        public NotificationLevel CheckMemoryAvailable(decimal percMemAvailable)
+        {
+            if (percMemAvailable >= minPercAvailableMemory)
+                return NotificationLevel.Okay;
+            return NotificationLevel.Error;
         }
     }
 }

@@ -1,25 +1,15 @@
 ﻿using Nimator;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CouchBaseHealthCheck
 {
     class MemoryCheckSettings : ICheckSettings
     {
-        public CouchBaseServerInfo Server { get; set; }
+        public CouchBaseServerInfo Server; 
         public decimal MinPercAvailableMemory { get; set; }
 
         public MemoryCheckSettings()
         {
-            Server = new CouchBaseServerInfo()
-            {
-                Address = "",
-                Username = "",
-                Password = "",
-            };
+            Server = new CouchBaseServerInfo();
             MinPercAvailableMemory = 1000;
         }
 

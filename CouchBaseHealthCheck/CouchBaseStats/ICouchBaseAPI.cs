@@ -1,8 +1,7 @@
-﻿using Couchbase.Management;
-using Refit;
+﻿using Refit;
 using System.Threading.Tasks;
 
-namespace CouchBaseHealthCheck.Stats
+namespace CouchBaseHealthCheck.CouchBaseStats
 {
     interface ICouchBaseAPI
     {

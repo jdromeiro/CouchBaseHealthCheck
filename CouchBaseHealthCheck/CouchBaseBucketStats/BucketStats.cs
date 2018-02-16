@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CouchBaseHealthCheck.BucketStats
+﻿namespace CouchBaseHealthCheck.CouchBaseBucketStats
 {
-    public class CouchBaseBucketStats
+    public class BucketStats
     {
         public string name { get; set; }
         public string bucketType { get; set; }

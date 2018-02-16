@@ -23,7 +23,7 @@ namespace CouchBaseHealthCheck
 
         static void Main()
         {
-            //log4net.Config.XmlConfigurator.Configure(); // Alternatively: http://stackoverflow.com/a/10204514/419956
+            log4net.Config.XmlConfigurator.Configure(); // Alternatively: http://stackoverflow.com/a/10204514/419956
 
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionLogger;
 

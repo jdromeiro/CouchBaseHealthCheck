@@ -49,19 +49,18 @@
             "Username": "Administrator",
             "Password": "omniaretail"
           },
-          "Bucket": "travel-sample"
+          "Bucket": "a"
         },
         {
           "$type": "CouchBaseHealthCheck.MemoryCheckSettings, CouchBaseHealthCheck",
           "MinPercAvailableMemory": 15,
-           "Server": {
+          "Server": {
             "Address": "http://127.0.0.1:8091/",
             "Username": "Administrator",
             "Password": "omniaretail"
           }
         }
-
-          ]
-        }
       ]
+    }
+  ]
 }

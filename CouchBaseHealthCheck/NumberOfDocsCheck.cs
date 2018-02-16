@@ -1,24 +1,17 @@
-﻿using Couchbase;
-using Couchbase.Configuration.Client;
-using Couchbase.Linq;
-using Nimator;
+﻿using Nimator;
 using Refit;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
+using CouchBaseHealthCheck.CouchBaseBucketStats;
 
 namespace CouchBaseHealthCheck
 {
-    class NumberOfDocsCheck : ICheck
+    public class NumberOfDocsCheck : ICheck
     {
-        private readonly string bucket;
-        private readonly CouchBaseServerInfo serverInfo;
-        private readonly int maxNumberOfDocs;
-
+        private string bucket { get; set; }
+        private int maxNumberOfDocs;
+        private HttpClientForRefit client;
         public string ShortName { get; }
         
         public NumberOfDocsCheck(CouchBaseServerInfo serverInfo, string bucket, int maxNumberOfDocs)
@@ -32,35 +25,47 @@ namespace CouchBaseHealthCheck
             if (string.IsNullOrEmpty(bucket))
                 throw new ArgumentException("Bucket name cannot be null nor empty");
 
-            this.serverInfo = serverInfo;
             this.bucket = bucket;
             this.maxNumberOfDocs = maxNumberOfDocs;
 
-            ShortName = $"Number of documents in bucket '{bucket}' in {serverInfo.Address}";
+            client = new HttpClientForRefit(serverInfo);
+
+            ShortName = $"Number of documents in bucket '{bucket}' in '{serverInfo.Address}'";
         }
-        
+
         public Task<ICheckResult> RunAsync()
         {
-            //authentication
-            var authByteArray = Encoding.ASCII.GetBytes($"{serverInfo.Username}:{serverInfo.Password}");
-            var authString = Convert.ToBase64String(authByteArray);
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authString);
-            httpClient.BaseAddress = new Uri(serverInfo.Address);
+            HttpClient httpClient = client.WithBasicAuthorization();
 
-            //rest Api
-            var couchBaseApi = RestService.For<BucketStats.ICouchBucketAPI>(httpClient);
-            var bucketNodeSTats = couchBaseApi.GetBucket(bucket).Result;
-            
-            //compute values
-            var numberOfDocs = bucketNodeSTats.basicStats.itemCount;
+            BucketStats stats = ComputeCouchBaseBucketStats(httpClient);
 
-            //calculate notification level
-            var level = (numberOfDocs < maxNumberOfDocs)
-                ? NotificationLevel.Okay
-                : NotificationLevel.Error;
+            var numberOfDocs = ComputeNumberOfDocs(stats);
+
+            var level = CheckNumberOfDocs(numberOfDocs);
 
             return Task.FromResult<ICheckResult>(new CheckResult(ShortName, level));
+        }
+
+        public BucketStats ComputeCouchBaseBucketStats(HttpClient httpClient)
+        {
+            if (httpClient == null)
+                throw new ArgumentNullException(nameof(httpClient));
+            var couchBaseApi = RestService.For<ICouchBucketAPI>(httpClient);
+            return couchBaseApi.GetBucket(bucket).Result;
+        }
+
+        public int ComputeNumberOfDocs(BucketStats stats)
+        {
+            if (stats == null)
+                throw new ArgumentNullException(nameof(stats));
+            return stats.basicStats.itemCount;
+        }
+        
+        public NotificationLevel CheckNumberOfDocs(int numberOfDocs)
+        {
+            if (numberOfDocs <= maxNumberOfDocs)
+                return NotificationLevel.Okay;
+            return NotificationLevel.Error;
         }
 
     }

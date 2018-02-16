@@ -1,9 +1,4 @@
 ﻿using Nimator;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CouchBaseHealthCheck
 {
@@ -15,13 +10,8 @@ namespace CouchBaseHealthCheck
 
         public NumberOfDocsCheckSettings()
         {
-            Server = new CouchBaseServerInfo()
-            {
-                Address = "",
-                Username = "",
-                Password = "",
-            };
-            Bucket = "";
+            Server = new CouchBaseServerInfo();
+            Bucket = string.Empty;
             MaxNumberOfDocs = 100;
         }
 
