@@ -16,7 +16,7 @@ namespace CouchBaseHealthCheck
         {
             if (serverInfo == null)
                 throw new ArgumentNullException(nameof(serverInfo));
-            if (minPercAvailableMemory < 0 || minPercAvailableMemory >= 100)
+            if (minPercAvailableMemory < 0 || minPercAvailableMemory > 100)
                 throw new ArgumentException("Minimum percentage of available memory should have a value between 0 and 100");
 
             this.minPercAvailableMemory = minPercAvailableMemory;
